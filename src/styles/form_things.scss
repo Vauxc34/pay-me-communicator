@@ -1,0 +1,16 @@
+.form-bigger-page {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    background: #1785d4;
+}
+
+.form-bigger-page .sideMain_part {
+    display: none;
+    position: absolute;
+    min-width: 250px;
+    right: 0;
+}
