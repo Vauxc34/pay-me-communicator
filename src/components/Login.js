@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
@@ -14,8 +15,6 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-
-
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 const Login = () => {
@@ -24,6 +23,8 @@ const Login = () => {
     const [showPassword, setShowPassword] = React.useState(false);
   
     const handleClickShowPassword = () => setShowPassword((show) => !show);
+
+    let navigate = useNavigate()
   
     const handleMouseDownPassword = (event) => {
       event.preventDefault();
@@ -39,11 +40,8 @@ const Login = () => {
         borderRadius: '15px',
         margin: '15px',
         }}>
-         
          <h2>Login</h2>
-
         <div style={{ margin: '0 10px 0 -5px' }}>
-
           <FormControl fullWidth sx={{ m: 1 }} variant="filled">
             <InputLabel htmlFor="filled-adornment-password">Email Address</InputLabel>
             <FilledInput
@@ -52,7 +50,6 @@ const Login = () => {
             />
           </FormControl>
         </div>
-
         <div style={{ margin: '0 10px 0 -5px' }}>
           <FormControl fullWidth sx={{ m: 1 }} variant="filled">
             <InputLabel htmlFor="filled-adornment-password">Password</InputLabel>
@@ -74,13 +71,8 @@ const Login = () => {
             />           
 
           </FormControl>
-
-          
         </div>
-
         <div>
-
-         
 
         </div>
 
@@ -88,7 +80,7 @@ const Login = () => {
         <Button style={{ margin: '10px 6px' }} variant="contained">Login
         <ExitToAppIcon style={{ margin: '0 0px 0 6px' }}/>
         </Button>
-        <Button style={{ margin: '10px 6px' }} variant="outlined">Go to Register
+        <Button onClick={() => navigate('/register')} style={{ margin: '10px 6px' }} variant="outlined">Go to Register
         <ExitToAppIcon style={{ margin: '0 0px 0 6px' }}/>
         </Button>
         </div>
@@ -101,11 +93,7 @@ const Login = () => {
     <>
     
       <div className='form-bigger-page'>
-
-        
-        
         <InputAdornments/>
-
       <div className='sideMain_part'></div>
 
       </div>

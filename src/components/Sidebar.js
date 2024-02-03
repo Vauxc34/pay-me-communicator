@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Link } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
+import LoginIcon from '@mui/icons-material/Login';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 
+import { UserContext } from '../UserProvider';
+
 const Sidebar = ({ AdditionalList }) => {
+
+  const userContext = useContext(UserContext);
+  const { User, setUser } = userContext  
     
     const [userStatus, setUserStatus] = useState('#ff0000')
 
 return (
     <div className='sideMain_part' ref={AdditionalList} style={{ zIndex: 2 }}>
 
-<div className='profileUserSmaller' style={{ 
-  backgroundImage: `url(${'https://yt3.googleusercontent.com/ytc/AIf8zZQ04J5rjrgCf5mp9adzQ6q0PhKqaFUPNa_AUJVY=s900-c-k-c0x00ffffff-no-rj'})`,
+      <div className='profileUserSmaller' style={{ 
+  backgroundImage: `url(${'https://placehold.co/75x75'})`,
   margin: '10px'
   }}>
   <div className='dot_' style={{ background: userStatus }}></div>
-</div>
+      </div>
 
     <ul className='navList'>
     
@@ -35,8 +41,21 @@ return (
         </Link>
          {/** */}
         <li>
+          {User == null ? <a onClick={() => window.location.replace(`${process.env.REACT_APP_SITE_URL}login`)} style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center' }}>  
+          <LoginIcon/>
+          Log in
+          </a> : <a onClick={() => setUser(null)} style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          alignItems: 'center', 
+          justifyContent: 'center' }}>
           <LogoutIcon/>
           Log out
+          </a>}
         </li>
     </ul>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
-import { Route, BrowserRouter as Router, Routes,  useNavigate  } from "react-router-dom";
+import { Route, BrowserRouter as Router, Routes, useLocation, Link  } from "react-router-dom";
 import { useMutation, useQuery } from '@apollo/client';
 import { CREATE_USER, DELETE_USER, UPDATE_USER } from './graphql/Mutation';
 import { GET_ALL_USERS } from './graphql/Queries';
@@ -7,7 +7,7 @@ import './styles/main.scss'
 
 /* providers */
 
-import { UserContext, UserProvider } from './UserProvider';
+import { UserContext } from './UserProvider';
 
 /* providers */
 
@@ -54,6 +54,9 @@ import Login from './components/Login'
 
 function App() {
 
+  const userContext = useContext(UserContext);
+  const { User } = userContext  
+
   const [createUser, { error }] = useMutation(CREATE_USER)
 
   const [deleteUser, {  }] = useMutation(DELETE_USER)
@@ -82,12 +85,17 @@ function App() {
   }
 
   let ActualWidth = window.innerWidth
+  
+  let location = useLocation()
+  let ExactPath = location.pathname
+
+  const LoggedUserArea = () => {
 
   useEffect(() => {
-    if(ConversationActiveMobile) {
+    if(ConversationActiveMobile && ExactPath == '/') {
       ConversationList.current.style.zIndex = 2
       AdditionalList.current.style.zIndex = -2
-    } else if (ActualWidth < 819) {
+    } else if (ActualWidth < 819 && ExactPath == '/') {
       ConversationList.current.style.zIndex = -1
       AdditionalList.current.style.zIndex = 4
     } else {
@@ -95,29 +103,41 @@ function App() {
       AdditionalList.current.style.zIndex = 4
     }
   }, [ConversationActiveMobile, ActualWidth])
-  
+
+    return (
+       <>
+       <Chats SettingChatMobile={SettingChatMobile}/>
+          <DiscusionBoard 
+          ConversationList={ConversationList} 
+          AdditionalList={AdditionalList}
+          SettingChatMobile={SettingChatMobile}/> 
+      </>
+    )
+
+  }
+
   return (
     
-    <UserProvider>
     <div className='wrapper'>
     <Sidebar AdditionalList={AdditionalList}/>
        
       <Routes>
-        <Route path='/' element={<>
-          <Chats SettingChatMobile={SettingChatMobile}/>
-          <DiscusionBoard 
-          ConversationList={ConversationList} 
-          AdditionalList={AdditionalList}
-          SettingChatMobile={SettingChatMobile}
-          /> 
-        </>}></Route>
+        <Route path='/' element={User == null ? <div className='form-bigger-page' style={{ 
+          flexDirection: 'column' }}>
+        <h3>You are not logged in</h3>
+        <Link to="/login">
+        <span style={{ color: '#fff' }}>
+        Log into your account
+        </span>
+        </Link>
+      </div> : <LoggedUserArea/>}></Route>
         <Route path='/profile' element={<Register/>}></Route>
         <Route path='/register' element={<Register/>}></Route>
         <Route path='/login' element={<Login/>}></Route>
       </Routes>
        
       </div>
-    </UserProvider>   
+ 
   );
 }
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
@@ -24,6 +25,7 @@ const Register = () => {
     const [showPassword, setShowPassword] = React.useState(false);
   
     const handleClickShowPassword = () => setShowPassword((show) => !show);
+    let navigate = useNavigate()
   
     const handleMouseDownPassword = (event) => {
       event.preventDefault();
@@ -135,7 +137,7 @@ const Register = () => {
         <Button style={{ margin: '10px 6px' }} variant="contained">Register
         <ExitToAppIcon style={{ margin: '0 0px 0 6px' }}/>
         </Button>
-        <Button style={{ margin: '10px 6px' }} variant="outlined">Go to login
+        <Button onClick={() => navigate('/login')} style={{ margin: '10px 6px' }} variant="outlined">Go to login
         <ExitToAppIcon style={{ margin: '0 0px 0 6px' }}/>
         </Button>
         </div>
