@@ -37,6 +37,12 @@ font-family: 'Oswald', sans-serif;
     box-sizing: border-box;
 }
 
+h1 {
+    font-size: 42px;
+    font-family: 'Oswald', sans-serif;
+    color: #000;
+}
+
 h2 {
     font-size: 36px;
     font-family: 'Nunito', sans-serif;
@@ -235,6 +241,25 @@ textarea {
     border-radius: 10px;
     background-color: #143878;
     color: white;
+}
+
+.UsersBar {
+    display: flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    min-height: 85px;
+    background: #143878;
+    -webkit-box-shadow: inset 0px 0px 10px 0px rgba(0,0,0,0.24); 
+    box-shadow: inset 0px 0px 10px 0px rgba(0,0,0,0.24);
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+.dot_user__bar {
+    margin: 15px;
 }
 
 .ChatCloud .profileUserSmaller {

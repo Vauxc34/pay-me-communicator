@@ -1,45 +1,45 @@
 import { gql } from '@apollo/client'
 
 export const CREATE_USER = gql`
-
     mutation createUser(
-            $first_name: String!,
-            $last_name: String!,
-            $email: String!,
-            $gender:	String!,
-            $ip_address: String!
+        $first_name: String!
+        $last_name: String!
+        $profile_pic: String!
+        $password: String!,
+        $email: String!,
+        $gender: String!,
+        $phone_number: Int!,
+        $friend_list: [friend_list]!,
+        $birth_date: String! 
             ) {
-
         createUser(
-            first_name: $first_name,
-            last_name: $last_name,
-            email: $email,
-            gender:	$gender,
-            ip_address: $ip_address,
+        first_name: $first_name,
+        last_name: $last_name,
+        profile_pic: $profile_pic,
+        password: $password,
+        email: $email,
+        gender: $gender,
+        phone_number: $phone_number,
+        friend_list: $friend_list,
+        birth_date: $birth_date
              ) {
-                id
                 first_name
                 last_name
              }
+    }`
 
-    }
 
-`
 
 export const DELETE_USER = gql`
-
     mutation deleteUser(
             $first_name: String!,
             ) {
-
         deleteUser(
             first_name: $first_name,
              ) {
                 id
              }
-
     }
-
 `
 
 export const UPDATE_USER = gql`

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -17,12 +17,28 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
 
+import { CREATE_USER, DELETE_USER, UPDATE_USER } from '../graphql/Mutation';
+import { useMutation } from '@apollo/client';
+import { UserContext } from '../UserProvider';
+
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 const Register = () => {
+
+  const [createUser, { error }] = useMutation(CREATE_USER)
+
+  const userContext = useContext(UserContext);
+  const { setUser } = userContext  
   
   function InputAdornments() {
-    const [showPassword, setShowPassword] = React.useState(false);
+
+    const [UserName, setUserName] = useState('')
+    const [UserLastName, setUserLastName] = useState('')
+    const [UserMail, setUserMail] = useState('')
+    const [UserPassword, setUserPassword] = useState('')
+    const [UserGender, setUserGender] = useState('')
+    
+    const [showPassword, setShowPassword] = useState(false);
   
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     let navigate = useNavigate()
@@ -30,6 +46,26 @@ const Register = () => {
     const handleMouseDownPassword = (event) => {
       event.preventDefault();
     };
+
+
+
+    const RegisterNewUser = () => {
+      createUser({
+        variables:
+        { 
+            first_name: UserName,
+            last_name: UserLastName,
+            profile_pic: '',
+            password: UserPassword,
+            email: UserMail,
+            gender: UserGender,
+            phone_number: 999999999,
+            friend_list: [],
+            birth_date: "20-02-2002"
+        }
+      })
+
+    }
   
     return (
       <Box sx={{ 
@@ -47,12 +83,16 @@ const Register = () => {
         <div>
           <TextField
             label="Name"
+            value={UserName}
+            onChange={(e) => setUserName(e.target.value)}
             id="filled-start-adornment"
             sx={{ m: 1, width: '25ch' }}
             variant="filled"
           />
           <TextField
             label="Surname"
+            value={UserLastName}
+            onChange={(e) => setUserLastName(e.target.value)}
             id="filled-start-adornment"
             sx={{ m: 1, width: '25ch' }}
             variant="filled"
@@ -65,6 +105,8 @@ const Register = () => {
           <FormControl fullWidth sx={{ m: 1 }} variant="filled">
             <InputLabel htmlFor="filled-adornment-password">Email Address</InputLabel>
             <FilledInput
+            value={UserMail}
+            onChange={(e) => setUserMail(e.target.value)}
               id="filled-adornment-password"
               type={'email'}
             />
@@ -75,6 +117,8 @@ const Register = () => {
           <FormControl fullWidth sx={{ m: 1 }} variant="filled">
             <InputLabel htmlFor="filled-adornment-password">Password</InputLabel>
             <FilledInput
+            value={UserPassword}
+            onChange={(e) => setUserPassword(e.target.value)}
               id="filled-adornment-password"
               type={showPassword ? 'text' : 'password'}
               endAdornment={
@@ -123,18 +167,18 @@ const Register = () => {
   <Select
     labelId="demo-simple-select-label"
     id="demo-simple-select"
-    defaultValue={10}
-     
+    defaultValue={'Male'}
+     onChange={(e) => setUserGender(e.target.value)}
   >
-    <MenuItem value={10}>Male</MenuItem>
-    <MenuItem value={20}>Female</MenuItem>
+    <MenuItem value={'Male'}>Male</MenuItem>
+    <MenuItem value={'Female'}>Female</MenuItem>
   </Select>
 </FormControl>
 
         </div>
 
         <div>
-        <Button style={{ margin: '10px 6px' }} variant="contained">Register
+        <Button onClick={RegisterNewUser} style={{ margin: '10px 6px' }} variant="contained">Register
         <ExitToAppIcon style={{ margin: '0 0px 0 6px' }}/>
         </Button>
         <Button onClick={() => navigate('/login')} style={{ margin: '10px 6px' }} variant="outlined">Go to login

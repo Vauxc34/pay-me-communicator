@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
@@ -12,10 +12,20 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import Avatar from '@mui/material/Avatar';
 
+/* providers */
+
+import { UserContext } from '../UserProvider';
+
+/* providers */
+
 const Profile = () => {
+
+  const userContext = useContext(UserContext);
+  const { User } = userContext 
   
   function InputAdornments() {
-    const [showPassword, setShowPassword] = React.useState(false);
+
+    const [showPassword, setShowPassword] = useState(false);
   
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     let navigate = useNavigate()
@@ -36,8 +46,6 @@ const Profile = () => {
         }}>
          
          <h1>Profile</h1>
-
-        
          
         <div style={{ 
       display: 'flex',
@@ -47,7 +55,9 @@ const Profile = () => {
 
         <Avatar />
 
-          <span style={{ margin: '0 6px' }}>Marian Dobroszynski</span>
+          <span style={{ margin: '0 6px' }}>
+            {User.first_name} {User.last_name}
+          </span>
 
         </div>
 

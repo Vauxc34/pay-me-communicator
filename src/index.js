@@ -6,7 +6,7 @@ import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { UserProvider } from './UserProvider';
 
 const client = new ApolloClient({
-  uri: 'http://localhost:3004/users',
+  uri: 'http://localhost:3004/users/register',
   cache: new InMemoryCache(),
 });
 

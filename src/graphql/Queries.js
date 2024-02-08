@@ -6,6 +6,14 @@ query getAllUsers {
         id
         first_name
     }
-}
+}`
 
+/* conversation part */
+
+export const GET_ALL_CONVERSATIONS = gql`
+query {
+    getConversationAll {
+        idUser
+    }
+}
 `
