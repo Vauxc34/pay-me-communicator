@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate } from 'react-router-dom';
+
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
@@ -16,16 +19,16 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
-
-import { CREATE_USER, DELETE_USER, UPDATE_USER } from '../graphql/Mutation';
+import { CREATE_USER } from '../graphql/Mutation';
 import { useMutation } from '@apollo/client';
 import { UserContext } from '../UserProvider';
 
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 
 const Register = () => {
-
+  
   const [createUser, { error }] = useMutation(CREATE_USER)
+  //const [createUL, {  }] = useMutation(CREATE_USER)
 
   const userContext = useContext(UserContext);
   const { setUser } = userContext  
@@ -37,17 +40,12 @@ const Register = () => {
     const [UserMail, setUserMail] = useState('')
     const [UserPassword, setUserPassword] = useState('')
     const [UserGender, setUserGender] = useState('')
-    
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState(false)
   
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     let navigate = useNavigate()
   
-    const handleMouseDownPassword = (event) => {
-      event.preventDefault();
-    };
-
-
+    const handleMouseDownPassword = (event) => { event.preventDefault() };
 
     const RegisterNewUser = () => {
       createUser({
@@ -133,10 +131,7 @@ const Register = () => {
                   </IconButton>
                 </InputAdornment>
               }
-            />
-
-           
-
+            />           
           </FormControl>
 
           <FormControl fullWidth sx={{ m: 1 }} variant="filled">
@@ -192,17 +187,11 @@ const Register = () => {
   
     return (
     <>
-    
-      <div className='form-bigger-page'>
-
-        
-        
-        <InputAdornments/>
-
-      <div className='sideMain_part'></div>
-
-      </div>
-
+   
+    <div className='form-bigger-page'>    
+    <InputAdornments/>
+    <div className='sideMain_part'></div>
+    </div>
     </>
   )
 }

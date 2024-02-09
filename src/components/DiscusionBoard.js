@@ -33,8 +33,7 @@ const DiscusionBoard = ({
     const [idUser, setIdUser] = useState(User ? User.id : 0)
     const isYourMessage =  User ? `${User.first_name + ' ' + User.last_name}` : 'no user'
     const [CollabolatorName, setCollabolatorName] = useState(JSON.parse(localStorage.getItem("CollabolatorQuery")) ?? Collaborator[0])
-
-    console.log(CollabolatorName)
+    const [MessageToSend, setMessageToSend] = useState('')
 
     useEffect(() => {
         fetch(`${process.env.REACT_APP_API_URL}conversations/message/${idUser}`, {
@@ -63,11 +62,30 @@ const DiscusionBoard = ({
     }, [idUser, idConference])
     
     let Query = SingleChatMessages.filter(item => item.user != isYourMessage)
-    console.log(Query)
 
-    useEffect(() => {
-        localStorage.setItem("CollabolatorQuery", JSON.stringify(Query))
-    }, [Query])
+    const SendAmessage = () => {
+        fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/create`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                User: isYourMessage, 
+                content: MessageToSend, 
+                id: AllChatsSingle.id, 
+                IdU:idUser
+            })
+    }).then(res => res.json())}
+
+    const Preloading = () => { window.location.reload(false) }
+
+    const SenderFunction = () => {
+    SendAmessage()
+    Preloading()
+    }
+
+    useEffect(() => { localStorage.setItem("CollabolatorQuery", JSON.stringify(Query))}, [Query])
      
   return (
 
@@ -77,24 +95,17 @@ const DiscusionBoard = ({
         <div className={`container-row align-items-center w-90  space-around-between`}>
 
             {window.innerWidth < 819 ? <CloseIcon style={{ color: '#ff0000' }} onClick={SettingChatMobile}/> : null}
-            
-            <div className='container-row'>
-
-            <h3>{CollabolatorName[0].user}</h3>
-
+            <div className='container-row w-100 space-around-between'>
+            <h3>Collabolator</h3>
             <div>
             <PhoneIcon style={{ margin: '0 5px 0 10px', color: '#fff' }}/>
             <AccountBoxIcon style={{ margin: '0 10px 0 5px', color: '#fff' }}/>
             </div>
-
-           
             </div>
-
             </div>
 
     <hr className='w-90'></hr>
     </div>
-
 {SingleChatMessages == [] ? null : SingleChatMessages.map(item => <>
 <div className={item.user == isYourMessage ? "messageItself Collabolator justify-end" : "messageItself You justify-start" }>
 {item.user == isYourMessage ? null : <div className='profileUserSmaller'></div>} 
@@ -105,40 +116,14 @@ const DiscusionBoard = ({
 {item.user == isYourMessage ? <div className='profileUserSmaller'></div> : null } 
 </div>
 </>)}
-
-    {/*<div className='messageItself You justify-start'>
-
-        <div className='profileUserSmaller'></div>
-
-        <div className='container--'>
-        <h3>Maciej Zachorowicz</h3>
-        <span className='mess_ You'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vel lorem sodales, suscipit felis eget, fermentum arcu. Aliquam tempor ipsum dolor. 
-            Suspendisse et orci at dolor cursus vehicula. Cras condimentum ipsum euismod sem ultricies elementum.</span>
-        </div>
-
-       
-    </div>
-
-    <div className='messageItself Collabolator justify-end'>
-
-    <div className='container--' style={{ alignItems: 'flex-end', justifyContent: 'left' }}>
-
-    <h3 className='right-text'>Maciej Zachorowicz</h3>
-        <span className='mess_ Collabolator right-text'>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vel lorem sodales, suscipit felis eget, fermentum arcu. Aliquam tempor ipsum dolor. 
-            Suspendisse et orci at dolor cursus vehicula. Cras condimentum ipsum euismod sem ultricies elementum.</span>
-
-    </div>
-
-    <div className='profileUserSmaller'></div>
-       
-    </div>*/}
-
     <div className='write-section'>
 
         <div className='container-row w-100 align-items-center justify-end'>
-        <textarea></textarea>
-        <Button className='ButtonSenderMessage'>
+        <textarea
+        value={MessageToSend}
+        onChange={(e) => setMessageToSend(e.target.value)}
+        ></textarea>
+        <Button className='ButtonSenderMessage' onClick={SenderFunction}>
         <SendIcon/>
         </Button>
         </div>

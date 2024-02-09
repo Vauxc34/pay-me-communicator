@@ -26,7 +26,7 @@ export const CREATE_USER = gql`
                 first_name
                 last_name
              }
-    }`
+}`
 
 
 
@@ -41,6 +41,7 @@ export const DELETE_USER = gql`
              }
     }
 `
+
 
 export const UPDATE_USER = gql`
 
@@ -59,3 +60,24 @@ export const UPDATE_USER = gql`
     }
 
 `
+
+
+/* */
+
+export const CREATE_MESSAGE = gql`
+  mutation createMessage($idUser: Int!, $users: [UserInput!], $messages: [MessageInput!]) {
+    createMessage(idUser: $idUser, users: $users, messages: $messages) {
+      idUser
+    }
+  }
+
+  input UserInput {
+    name: String
+    surname: String
+  }
+
+  input MessageInput {
+    user: String
+    content: String
+  }
+`;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef } from 'react'
 import { Route, BrowserRouter as Router, Routes, useLocation, Link  } from "react-router-dom";
-import { useMutation, useQuery } from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloProvider, HttpLink, useMutation, useQuery } from '@apollo/client';
 import { CREATE_USER, DELETE_USER, UPDATE_USER } from './graphql/Mutation';
 import { ToastContainer } from 'react-toastify'; 
 import { GET_ALL_USERS } from './graphql/Queries';
@@ -24,8 +24,6 @@ import Profile from './components/Profile'
 import Login from './components/Login'
 
 /* components */
-
- 
 
 {/* <button onClick={() => { createUser({
         variables:
@@ -60,14 +58,22 @@ import Login from './components/Login'
 
 function App() {
 
+  const link2 = new HttpLink({
+    uri: 'http://localhost:3004/conversations/message',
+  });
+
+  const client2 = new ApolloClient({
+    link: link2,
+    cache: new InMemoryCache(),
+  });
+
   const userContext = useContext(UserContext);
   const { User } = userContext  
 
-  const [createUser, { error }] = useMutation(CREATE_USER)
-  const [deleteUser, { }] = useMutation(DELETE_USER)
-  const [updateUser, { }] = useMutation(UPDATE_USER)
+  //const [deleteUser, { }] = useMutation(DELETE_USER)
+  //const [updateUser, { }] = useMutation(UPDATE_USER)
 
-  const [userArray, setUserArray] = useState([])
+  //const [userArray, setUserArray] = useState([])
 
   //const { data } = useQuery(GET_ALL_USERS, { client: link2 })
 
@@ -108,20 +114,27 @@ function App() {
       AdditionalList.current.style.zIndex = 4
     }
     }, [ConversationActiveMobile, ActualWidth])
- 
+
+    const Preloading = () => {
+      window.location.reload(false);
+    }
 
     return (
        <>
+       <ApolloProvider client={client2}>
        <Chats 
+       Preloading={Preloading}
        SettingChatMobile={SettingChatMobile} 
        idConference={idConference}
        setIdConference={setIdConference}
        />
-          <DiscusionBoard 
-          idConference={idConference}
-          ConversationList={ConversationList} 
-          AdditionalList={AdditionalList}
-          SettingChatMobile={SettingChatMobile}/> 
+       <DiscusionBoard 
+       idConference={idConference}
+       ConversationList={ConversationList} 
+       AdditionalList={AdditionalList}
+       SettingChatMobile={SettingChatMobile}
+       /> 
+       </ApolloProvider>
       </>
     )
   }
@@ -130,8 +143,6 @@ function App() {
     
     <div className='wrapper'>
     <Sidebar AdditionalList={AdditionalList}/>
-       
-   
       <Routes>
         <Route path='/' element={User == null ? <div className='form-bigger-page' style={{ 
           flexDirection: 'column' }}>

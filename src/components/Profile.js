@@ -62,8 +62,6 @@ const Profile = () => {
         </div>
 
         <div style={{ margin: '0 10px 0 -5px' }}>
-
-           
           
         </div>
 
@@ -72,8 +70,6 @@ const Profile = () => {
         </div>
 
         <div>
-
- 
 
         </div>
 
