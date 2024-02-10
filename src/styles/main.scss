@@ -240,6 +240,7 @@ textarea {
     max-height: 200px;
     border-radius: 10px;
     background-color: #143878;
+    cursor: pointer;
     color: white;
 }
 
@@ -262,7 +263,7 @@ textarea {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: flex-start;
+    align-items: center;
     color: #fff;
     margin: 15px;
 }

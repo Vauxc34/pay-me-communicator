@@ -21,18 +21,18 @@ import Button from '@mui/material/Button';
 const DiscusionBoard = ({ 
     ConversationList,
     SettingChatMobile,
-    idConference
+    idConference,
+    SettedCollab
 }) => {
 
-    let Collaborator = [{ user: 'Josef', content: "" }]
+    const CollabolatorDetails = JSON.parse(localStorage.getItem("SettedCollab")) ?? 'Collabolator'
     const userContext = useContext(UserContext);
     const { User, ConversationSetter } = userContext
     const [AllChatsSingle, setAllChatsSingle] = useState([])
-    const [SingleChatMessages, setSingleChatMessages] = useState([])
+    const [SingleChatMessages, setSingleChatMessages] = useState([]) 
 
     const [idUser, setIdUser] = useState(User ? User.id : 0)
     const isYourMessage =  User ? `${User.first_name + ' ' + User.last_name}` : 'no user'
-    const [CollabolatorName, setCollabolatorName] = useState(JSON.parse(localStorage.getItem("CollabolatorQuery")) ?? Collaborator[0])
     const [MessageToSend, setMessageToSend] = useState('')
 
     useEffect(() => {
@@ -49,22 +49,24 @@ const DiscusionBoard = ({
     }, [idUser, idConference])
 
     useEffect(() => {
-        fetch(`${process.env.REACT_APP_API_URL}conversations/message/${idUser}`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                idConf: idConference
-            })
-        }).then(res => res.json()).then(data => setSingleChatMessages(JSON.parse(data.content[0].messages)))
+        if(idConference != 0) {
+            fetch(`${process.env.REACT_APP_API_URL}conversations/message/${idUser}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    idConf: idConference
+                })
+            }).then(res => res.json()).then(data => setSingleChatMessages(JSON.parse(data.content[0].messages)))
+        } else { }
     }, [idUser, idConference])
-    
+
     let Query = SingleChatMessages.filter(item => item.user != isYourMessage)
 
     const SendAmessage = () => {
-        fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/create`, {
+    fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/create`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -76,7 +78,26 @@ const DiscusionBoard = ({
                 id: AllChatsSingle.id, 
                 IdU:idUser
             })
-    }).then(res => res.json())}
+    }).then(res => res.json())
+    }
+
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/create`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    User: isYourMessage, 
+                    content: MessageToSend, 
+                    id: AllChatsSingle.id, 
+                    IdU:idUser
+                })
+        }).then(res => res.json()).then(window.location.reload(false))
+        }
+    }
 
     const Preloading = () => { window.location.reload(false) }
 
@@ -96,9 +117,9 @@ const DiscusionBoard = ({
 
             {window.innerWidth < 819 ? <CloseIcon style={{ color: '#ff0000' }} onClick={SettingChatMobile}/> : null}
             <div className='container-row w-100 space-around-between'>
-            <h3>Collabolator</h3>
+            <h3>{CollabolatorDetails[0] == undefined ? isYourMessage : CollabolatorDetails[0].name + ' ' + CollabolatorDetails[0].surname}</h3>
             <div>
-            <PhoneIcon style={{ margin: '0 5px 0 10px', color: '#fff' }}/>
+            <PhoneIcon style={{ margin: '0 5px 0 10px', color: '#fff', display: 'none' }}/>
             <AccountBoxIcon style={{ margin: '0 10px 0 5px', color: '#fff' }}/>
             </div>
             </div>
@@ -120,6 +141,7 @@ const DiscusionBoard = ({
 
         <div className='container-row w-100 align-items-center justify-end'>
         <textarea
+        onKeyDown={handleKeyDown}
         value={MessageToSend}
         onChange={(e) => setMessageToSend(e.target.value)}
         ></textarea>

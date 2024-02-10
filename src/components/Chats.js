@@ -16,11 +16,7 @@ import { CREATE_MESSAGE } from '../graphql/Mutation';
 
 /* providers */
 
-const Chats = ({ 
-  Preloading,
-  SettingChatMobile, 
-  setIdConference
- }) => {
+const Chats = ({ setIdConference, setSettedColab }) => {
 
   const [createMessage, { error }] = useMutation(CREATE_MESSAGE)
   const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -54,14 +50,18 @@ const Chats = ({
 
   const userContext = useContext(UserContext);
   const { User } = userContext
-
-  let parsedUserList = JSON.parse(User.friend_list)
-  const [NewUserList, setNewUserList] = useState([])
-
+ 
+  const [NewUserList, setNewUserList] = useState([])  
 
   useEffect(() => {
     if(User) {
-      setNewUserList(parsedUserList)
+      fetch(`${process.env.REACT_APP_API_URL}users/list`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+      }}).then(res => res.json()).then(data => setNewUserList(data.content))
+      
     } else {  }
   }, [User])
 
@@ -71,8 +71,10 @@ const Chats = ({
 
   const UserDotComponent = (item) => {
 
-    const CollabolatorNames = item.item
+    const [isUserAdded, setIsUserAdded] = useState([])
 
+    const Collabolator = item.item   
+ 
     const SelectUserAndCreateMess = () => {
       createMessage({
         variables: {
@@ -84,13 +86,15 @@ const Chats = ({
     }
 
     const SelectAndCreate = () => {
+    setSettedColab(Collabolator)
+    const ChatVisitors = [{id: idUser }, {id: Collabolator.id }]
 
-      const UserScheme = [
-        {name:User.first_name,surname:User.last_name},
-        {name:CollabolatorNames.first_name,surname:CollabolatorNames.last_name}
-      ]
+    const UserScheme = [
+        {id: idUser, name:User.first_name,surname:User.last_name},
+        {id: Collabolator.id, name:Collabolator.first_name,surname:Collabolator.last_name}
+    ]
 
-      fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/new`, {
+    fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/new`, {
           method: 'POST',
           headers: {
               'Accept': 'application/json',
@@ -98,12 +102,12 @@ const Chats = ({
           },
           body: JSON.stringify({
             id: Math.floor(Math.random() * 9999),
-            idUser: idUser,
+            idUsers: ChatVisitors,
             users: UserScheme,
             messages: [
                 {user: isYourMessage, content: "👋"} 
             ]
-    })}).then(res => res.json()).then(window.location.reload(false))}
+    })}).then(res => res.json())}
 
     return (
       <div className='dot_user__bar' onClick={SelectAndCreate}>
@@ -114,7 +118,7 @@ const Chats = ({
       >
       <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
       </StyledBadge>
-      <span>{item.first_name}</span>
+      <span>{Collabolator.first_name}</span>
       </div>
     )
   }
@@ -128,40 +132,24 @@ const Chats = ({
       }}).then(res => res.json()).then(data => setAllChats(data.content))
   }, [])
 
-    const MessageThreadComponent = ({ item, idThread }) => {
+  const MessageThreadComponent = ({ item, idThread }) => {
+
+    const CollabolatorsArray = JSON.parse(item.users)
+    const LookingCollabolator = CollabolatorsArray.filter(item => item.id != idUser)
     let ItemIndex = AllChats.findIndex(item => item.id == idThread)
     const [Users, setUsers] = useState(JSON.parse(AllChats[ItemIndex].users))
-    const [Messages, setMessages] = useState(JSON.parse(AllChats[ItemIndex].messages))
+    const Messages = JSON.parse(AllChats[ItemIndex].messages)
 
-    
-  
-    useEffect(() => {
+    useEffect(() => { setUsers(LookingCollabolator[ItemIndex])}, [])
 
-      let NewUsersNameObj = Users.filter((item) => item.user != isYourMessage)
-     
-     setUsers(NewUsersNameObj[ItemIndex])
+    const MultipleFunction = () => { setIdConference(idThread) 
+    setSettedColab(LookingCollabolator)}
 
-    }, [])
-
-    const MultipleFunction = () => {
-
-
-      if(window.innerWidth < 819) {
-        setIdConference(idThread)
-        SettingChatMobile()
-      } else {
-        Preloading()
-        setIdConference(idThread)
-      }
-      
-      
-    }
-    
     return (
       <div onClick={MultipleFunction} className='ChatCloud'>
           <div className='profileUserSmaller'></div>
             <div className='container--'>
-              <h3>{Users ? Users.name + ' ' + Users.surname : 'Collabolator'}</h3>
+              <h3>{Users == undefined ? isYourMessage : Users.name + ' ' + Users.surname}</h3>
             <span className='mess_ You'>{Messages[0] ? Messages.slice(-1)[0].content : ''}</span>
           </div>
         </div>

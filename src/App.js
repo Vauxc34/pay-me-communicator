@@ -99,6 +99,9 @@ function App() {
 
   const LoggedUserArea = () => {
 
+    const [SettedCollab, setSettedColab] = useState(JSON.parse(localStorage.getItem("SettedCollab")) ?? 'Collabolator')
+    useEffect(() => { localStorage.setItem("SettedCollab", JSON.stringify(SettedCollab)) }, [SettedCollab])
+
     const [idConference, setIdConference] = useState(JSON.parse(localStorage.getItem("idConference")) ?? 0) 
     useEffect(() => { localStorage.setItem("idConference", JSON.stringify(idConference)) }, [idConference])
 
@@ -114,21 +117,23 @@ function App() {
       AdditionalList.current.style.zIndex = 4
     }
     }, [ConversationActiveMobile, ActualWidth])
-
-    const Preloading = () => {
-      window.location.reload(false);
-    }
+    const Preloading = () => {window.location.reload(false)}
 
     return (
        <>
        <ApolloProvider client={client2}>
        <Chats 
+       setSettedColab={setSettedColab}
+       SettedCollab={SettedCollab}
        Preloading={Preloading}
+       ConversationActiveMobile={ConversationActiveMobile}
+       setConversationActiveMobile={setConversationActiveMobile}
        SettingChatMobile={SettingChatMobile} 
        idConference={idConference}
        setIdConference={setIdConference}
        />
        <DiscusionBoard 
+       SettedCollab={SettedCollab}
        idConference={idConference}
        ConversationList={ConversationList} 
        AdditionalList={AdditionalList}

@@ -58,7 +58,9 @@ const Register = () => {
             email: UserMail,
             gender: UserGender,
             phone_number: 999999999,
-            friend_list: [],
+            friend_list: [
+              { id: Math.floor(Math.random() * 99), first_name: 'John', last_name: 'Brevic' }
+            ],
             birth_date: "20-02-2002"
         }
       })

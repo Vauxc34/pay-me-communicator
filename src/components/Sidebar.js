@@ -12,7 +12,10 @@ const Sidebar = ({ AdditionalList }) => {
   const userContext = useContext(UserContext);
   const { User, setUser } = userContext  
     
-    const [userStatus, setUserStatus] = useState('#ff0000')
+    const [userStatus, setUserStatus] = useState('#10a600')
+
+    // active - #10a600
+    // not active - #ff0000
 
 return (
     <div className='sideMain_part' ref={AdditionalList} style={{ zIndex: 2 }}>
