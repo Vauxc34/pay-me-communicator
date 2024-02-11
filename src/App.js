@@ -158,7 +158,7 @@ function App() {
         </span>
         </Link>
       </div> : <LoggedUserArea/>}></Route>
-        <Route path='/profile' element={User ? <Profile/> : 
+        <Route path='/profile' element={User ? <Profile /> : 
         <div className='form-bigger-page' style={{ 
           flexDirection: 'column' }}>
         <h3>You are not logged in</h3>
@@ -180,7 +180,7 @@ function App() {
       </div> : <Login/>}></Route>
       </Routes>
       <ToastContainer
-position="top-right"
+      position="top-right"
 autoClose={5000}
 hideProgressBar={false}
 newestOnTop={false}
@@ -190,7 +190,7 @@ pauseOnFocusLoss
 draggable
 pauseOnHover
 theme="light"
-/>
+      />
       </div>
  
   );

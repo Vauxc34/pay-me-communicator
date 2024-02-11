@@ -70,9 +70,6 @@ const Chats = ({ setIdConference, setSettedColab }) => {
   const [isYourMessage, setIsYourMessage] = useState(User ? `${User.first_name + ' ' + User.last_name}` : 'no user')
 
   const UserDotComponent = (item) => {
-
-    const [isUserAdded, setIsUserAdded] = useState([])
-
     const Collabolator = item.item   
  
     const SelectUserAndCreateMess = () => {
@@ -105,9 +102,9 @@ const Chats = ({ setIdConference, setSettedColab }) => {
             idUsers: ChatVisitors,
             users: UserScheme,
             messages: [
-                {user: isYourMessage, content: "👋"} 
+                {user: isYourMessage, content: "👋", attachment: '[]'} 
             ]
-    })}).then(res => res.json())}
+    })}).then(res => res.json()).then(window.location.reload(false))}
 
     return (
       <div className='dot_user__bar' onClick={SelectAndCreate}>
@@ -116,7 +113,7 @@ const Chats = ({ setIdConference, setSettedColab }) => {
       anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
       variant="dot"
       >
-      <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
+      <Avatar alt={Collabolator.first_name} src={Collabolator.profile_pic}/>
       </StyledBadge>
       <span>{Collabolator.first_name}</span>
       </div>
@@ -136,21 +133,23 @@ const Chats = ({ setIdConference, setSettedColab }) => {
 
     const CollabolatorsArray = JSON.parse(item.users)
     const LookingCollabolator = CollabolatorsArray.filter(item => item.id != idUser)
+    const RightOneCollabolator = CollabolatorsArray.find(item => item.id)
     let ItemIndex = AllChats.findIndex(item => item.id == idThread)
     const [Users, setUsers] = useState(JSON.parse(AllChats[ItemIndex].users))
     const Messages = JSON.parse(AllChats[ItemIndex].messages)
-
     useEffect(() => { setUsers(LookingCollabolator[ItemIndex])}, [])
-
     const MultipleFunction = () => { setIdConference(idThread) 
-    setSettedColab(LookingCollabolator)}
+    setSettedColab(LookingCollabolator)} 
+
+    let SettedPic = NewUserList.find(item => item.id == RightOneCollabolator.id)     
 
     return (
       <div onClick={MultipleFunction} className='ChatCloud'>
-          <div className='profileUserSmaller'></div>
+          <div className='profileUserSmaller' style={{ backgroundImage: `url(${SettedPic == undefined ? '' : SettedPic.profile_pic})` }}></div>
             <div className='container--'>
               <h3>{Users == undefined ? isYourMessage : Users.name + ' ' + Users.surname}</h3>
-            <span className='mess_ You'>{Messages[0] ? Messages.slice(-1)[0].content : ''}</span>
+            <span className='mess_ You'>{Messages[0] ? Messages.slice(-1)[0].content : ''}
+            </span>
           </div>
         </div>
   )} 

@@ -42,23 +42,28 @@ export const DELETE_USER = gql`
     }
 `
 
+export const UPDATE_PROFILE_PIC = gql`
+mutation updateProfilePicUser(
+  $id: Int, 
+  $profile_pic: String 
+  ) { 
+      updateProfilePicUser(
+        id: $id, 
+        profile_pic: $profile_pic 
+        ) {
+        id
+      } 
+      
+    }
+`
+
 
 export const UPDATE_USER = gql`
-
-    mutation updateUser(
-            $id: Int!,
-            $first_name: String!,
-            ) {
-
-        updateUser(
-            id: $id,
-            first_name: $first_name,
-             ) {
+    mutation updateUser($id: Int!, $first_name: String!) {
+        updateUser(id: $id, first_name: $first_name) {
                 id
              }
-
     }
-
 `
 
 

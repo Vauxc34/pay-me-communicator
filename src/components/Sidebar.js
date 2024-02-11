@@ -14,16 +14,21 @@ const Sidebar = ({ AdditionalList }) => {
     
     const [userStatus, setUserStatus] = useState('#10a600')
 
-    // active - #10a600
-    // not active - #ff0000
+    const UserStatusSetter = () => {
+      if(User) {
+        setUserStatus('#10a600')
+      } else {
+        setUserStatus('#ff0000')
+      }
+    }
+
+    useEffect(() => { UserStatusSetter() }, [User])
+
 
 return (
     <div className='sideMain_part' ref={AdditionalList} style={{ zIndex: 2 }}>
 
-      <div className='profileUserSmaller' style={{ 
-  backgroundImage: `url(${'https://placehold.co/75x75'})`,
-  margin: '10px'
-  }}>
+      <div className='profileUserSmaller' style={{ backgroundImage: `url(${User ? User.profile_pic : 'https://placehold.co/75x75'})`, margin: '10px' }}>
   <div className='dot_' style={{ background: userStatus }}></div>
       </div>
 
