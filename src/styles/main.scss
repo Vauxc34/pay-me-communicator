@@ -227,6 +227,19 @@ textarea {
     margin: 0px 0px 15px 0px;
 }
 
+.gifsArea {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 90%;
+    overflow-y: scroll;
+    margin: 0px 0px 0px 0px;
+}
+
+.gifsArea span {
+    color: #fff;
+}
+
 .Container__photo {
     display: flex;
     flex-direction: column;

@@ -21,6 +21,7 @@ import Sidebar from './components/Sidebar';
 import DiscusionBoard from './components/DiscusionBoard';
 import Register from './components/Register'
 import Profile from './components/Profile'
+import ProfileSomeone from './components/ProfileSomeone';
 import Login from './components/Login'
 
 /* components */
@@ -168,6 +169,7 @@ function App() {
         </span>
         </Link>
       </div>}></Route>
+      <Route path="/profile/:id" element={<ProfileSomeone/>}></Route>
         <Route path='/register' element={<Register/>}></Route>
         <Route path='/login' element={User ?  
         <div className='form-bigger-page' style={{ 

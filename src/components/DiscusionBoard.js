@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; 
+import { useNavigate } from 'react-router-dom';
 import { storage, app } from '../config';
+import { toast } from 'react-toastify'; 
 
 /* providers */
 
@@ -15,17 +17,19 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import TextFieldsIcon from '@mui/icons-material/TextFields';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import AlternateEmailIcon from '@mui/icons-material/AlternateEmail';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import PhoneIcon from '@mui/icons-material/Phone';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import CloseIcon from '@mui/icons-material/Close';
 import Button from '@mui/material/Button';
 
-const DiscusionBoard = ({ 
-    ConversationList,
-    SettingChatMobile,
-    idConference
-}) => {
+/* */
 
+import TextField from '@mui/material/TextField';
+
+const DiscusionBoard = ({ ConversationList, SettingChatMobile, idConference }) => {
+
+    let navigate = useNavigate()
     const [NewUserList, setNewUserList] = useState([])  
 
     useEffect(() => {
@@ -66,7 +70,7 @@ const DiscusionBoard = ({
             },
             () => {
               getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-                setAttachments(oldArray => [...oldArray, { id: Math.floor(Math.random() * 999), url__: downloadURL }] );
+                setAttachments(oldArray => [...oldArray, { id: Math.floor(Math.random() * 999), url__: downloadURL, type: 'normal_img' }] );
               });
             }
           );
@@ -85,10 +89,15 @@ const DiscusionBoard = ({
     const [idUser, setIdUser] = useState(User ? User.id : 0)
     const isYourMessage =  User ? `${User.first_name + ' ' + User.last_name}` : 'no user'
     const [MessageToSend, setMessageToSend] = useState('')
-    const [ifAreaSetted, setIfAreaSetted] = useState(0)
+    const [AreaExact, setAreaExact] = useState(-1)
+    const [AreaSetted, setAreaSetted] = useState(false)
 
     const ViewPhotoArea = () => {
     function handleChange(event) { setFile(event.target.files[0]) }  
+
+    let IsAttachmentImage = Attachments.find(item => item.type == 'normal_img')
+    let FilteredImageAttachments = Attachments.filter(item => item.type == 'normal_img')
+
         return (
             <div className='viewPhotoArea'>
             <div className='Container__photo' style={{ margin: '0 10px' }}>
@@ -98,15 +107,133 @@ const DiscusionBoard = ({
             <AddCircleOutlineIcon/>
             </div>
             </div>
-
-            {Attachments != [] ? Attachments.map(item => <div className='Container__photo' style={{ margin: '0 5px' }}>
+            {IsAttachmentImage ? FilteredImageAttachments.map(item => <div className='Container__photo' style={{ margin: '0 5px' }}>
             <div className='placeholdPhoto' style={{ backgroundImage: `url(${item.url__})` }}></div>
             </div>) : ''}
-
             </div>
     )}
 
-    function SetViewArea() { setIfAreaSetted(ifAreaSetted + 1) }
+    const GifArea = () => {
+
+    let [searchTerm, setSearchTerm] = useState('')
+    let [Gifs, setGifs] = useState([])
+    let [GifsEvery, setGifsEvery] = useState([])
+    const [isSearched, setIsSearched] = useState(false)
+    
+    var apikey = process.env.REACT_APP_API_KEY_TENOR;
+    var clientkey = process.env.REACT_APP_CLIENT_KEY_TENOR;
+    var lmt = 26;
+    
+      var search_url = "https://tenor.googleapis.com/v2/search?q=" + searchTerm + "&key=" + apikey +"&client_key=" + clientkey +  "&limit=" + lmt;
+      var every_url = "https://tenor.googleapis.com/v2/search?q=" + 'random' + "&key=" + apikey +"&client_key=" + clientkey +  "&limit=" + lmt;
+
+      const FindGif = (event) => {
+
+        if (event.key === 'Enter') {
+
+          setIsSearched(true)
+
+          fetch(search_url, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+          }}).then(res => res.json()).then(data => setGifs(data.results))
+        }
+      }      
+
+      useEffect(() => {
+          fetch(every_url, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+          }}).then(res => res.json()).then(data => setGifsEvery(data.results))        
+      }, [])
+
+      let IsAttachmentGif = Attachments.find(item => item.type == 'gif')
+      let FilteredGifAttachments = Attachments.filter(item => item.type == 'gif')
+      
+      return (
+
+        <div className='gifsArea'>
+
+        {IsAttachmentGif ? <>
+        
+        <h3 style={{ margin: '5px 0' }}>Selected:</h3>  
+
+        <div className='viewPhotoArea' style={{ width: '100%' }}>
+          {FilteredGifAttachments.map(item => <div className='Container__photo' style={{ margin: '0 5px' }}>
+           <div className='placeholdPhoto' style={{ backgroundImage: `url(${item.url__})` }}></div>
+          </div>)}
+        </div>
+
+        </> : null}
+
+        <h3>Look for some meme</h3>
+
+        <TextField style={{ margin: '10px 0px', background: '#ffffffc2', borderRadius: '5px', color: "black" }}
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        onKeyDown={(event) => { FindGif(event)}}/>
+
+        {isSearched == true ? '' : <div className='viewPhotoArea' style={{ width: '100%' }}>
+        {GifsEvery.map(item => <div className='Container__photo' style={{ margin: '0 5px' }}>
+        <div className='placeholdPhoto'
+        onClick={() => { setAttachments(oldArray => [...oldArray, { id: Math.floor(Math.random() * 999), url__: item.media_formats.gif.url, type: 'gif' }] )}}
+        style={{ backgroundImage: `url(${item.media_formats.gif.url})` }}></div>
+        </div>)}
+        </div>}
+
+        <div className='viewPhotoArea' style={{ width: '100%' }}>
+        {Gifs != [] ? Gifs.map(item => <div className='Container__photo' style={{ margin: '0 5px' }}>
+        <div className='placeholdPhoto'
+        onClick={() => { setAttachments(oldArray => [...oldArray, { id: Math.floor(Math.random() * 999), url__: item.media_formats.gif.url, type: 'gif' }] )}}
+        style={{ backgroundImage: `url(${item.media_formats.gif.url})` }}></div>
+        </div>) : ''}
+        </div>
+
+        </div>
+
+      )
+
+    }
+
+    function SetViewArea() { 
+
+      setAreaExact(0)
+      setAreaSetted(true)
+
+      if(AreaSetted == true) {
+        setAreaExact(3)
+        setAreaSetted(false)
+      } else {
+        setAreaExact(0)
+      }
+
+    }
+
+    function SetViewArea1() {  
+      
+      setAreaExact(1)
+      setAreaSetted(true)
+
+      if(AreaSetted == true) {
+        setAreaExact(3)
+        setAreaSetted(false)
+      } else {
+        setAreaExact(1)
+      }      
+    }
+
+    function RemoveConversation() {
+      fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/remove/${idConference}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+      }}).then(res => res.json()).then(toast.info('You Deleted succesfully')).then(window.location.reload(false))
+    }
 
     const picker = new window.EmojiButton()
     picker.on('emoji', emoji => {
@@ -189,7 +316,7 @@ const DiscusionBoard = ({
 
     const SingleCloudMess = (item) => { 
 
-      let ParsedDataIds = JSON.parse(AllChatsSingle.idUsers)
+      let ParsedDataIds = AllChatsSingle.idUsers ? JSON.parse(AllChatsSingle.idUsers) : []
      
       let YouPicId = ParsedDataIds.find(item => item.id == idUser)
       let CollabPicId = ParsedDataIds.filter(item => item.id != idUser)
@@ -206,8 +333,8 @@ const DiscusionBoard = ({
 
         return (
         <div className={ActualItem.user == isYourMessage ? "messageItself Collabolator justify-end" : "messageItself You justify-start" }>
-            {ActualItem.user == isYourMessage ? null : <div className='profileUserSmaller' 
-            style={{ backgroundImage: `url(${lookingPhotoC.profile_pic  == undefined ? '' : lookingPhotoC.profile_pic})` }}
+            {ActualItem.user == isYourMessage && lookingPhotoC != undefined ? null : <div className='profileUserSmaller' 
+            style={{ backgroundImage: `url(${lookingPhotoC  == undefined ? '' : lookingPhotoC.profile_pic})` }}
             ></div>} 
             <div className='container--'>
                 <h3 className={ActualItem.user == isYourMessage ? "right-text" : "left-text"}>{ActualItem.user}</h3>
@@ -216,13 +343,14 @@ const DiscusionBoard = ({
                 {ArrayAttachment == [] ? '' : ArrayAttachment.map(item => <div className='placeholdPhoto' style={{ backgroundImage: `url(${item.url__})` }}></div>)}
                  </div>
             </div>
-            {ActualItem.user == isYourMessage ? <div
-            style={{ backgroundImage: `url(${lookingPhotoY.profile_pic == undefined ? '' : lookingPhotoY.profile_pic})` }}
+            {ActualItem.user == isYourMessage && lookingPhotoY != undefined ? <div
+            style={{ backgroundImage: `url(${lookingPhotoY == undefined ? '' : lookingPhotoY.profile_pic})` }}
             className='profileUserSmaller'></div> : null } 
         </div>
         )
 
     }
+
      
   return (
 
@@ -233,10 +361,11 @@ const DiscusionBoard = ({
 
             {window.innerWidth < 819 ? <CloseIcon style={{ color: '#ff0000' }} onClick={SettingChatMobile}/> : null}
             <div className='container-row w-100 space-around-between'>
-            <h3>{CollabolatorDetails[0] == undefined ? isYourMessage : CollabolatorDetails[0].name + ' ' + CollabolatorDetails[0].surname}</h3>
+            <h3>{CollabolatorDetails[0] == undefined ? isYourMessage :  CollabolatorDetails[0].name + ' ' + CollabolatorDetails[0].surname}</h3>
             <div>
             <PhoneIcon style={{ margin: '0 5px 0 10px', color: '#fff', display: 'none' }}/>
-            <AccountBoxIcon style={{ margin: '0 10px 0 5px', color: '#fff' }}/>
+            <AccountBoxIcon style={{ margin: '0 10px 0 5px', color: '#fff', cursor: 'pointer' }} onClick={() => { navigate(`/profile/${CollabolatorDetails[0] == undefined ? idUser : CollabolatorDetails[0].id}`) }}/>
+            <DeleteForeverIcon style={{ margin: '0px', color: '#fff', cursor: 'pointer' }} onClick={RemoveConversation}/>
             </div>
             </div>
             </div>
@@ -257,11 +386,12 @@ const DiscusionBoard = ({
         <SendIcon/>
         </Button>
         </div>
-        {ifAreaSetted % 2 ? <ViewPhotoArea/> : ''}
+        {AreaExact == 0 ? <ViewPhotoArea/> : ''}
+        {AreaExact == 1 ? <GifArea/> : ''}
         <hr className='w-90'></hr>
         <div className='container-row AdditionalThingsChat align-items-center'>
             <AddCircleOutlineIcon onClick={SetViewArea}/>
-            {/*<TextFieldsIcon/>*/}
+            <TextFieldsIcon onClick={SetViewArea1}/>
             <EmojiEmotionsIcon onClick={() => { picker.togglePicker() }}/>
             {/*<AlternateEmailIcon/>*/}
         </div>
