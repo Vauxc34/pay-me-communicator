@@ -5,6 +5,8 @@ import { CREATE_USER, DELETE_USER, UPDATE_USER } from './graphql/Mutation';
 import { ToastContainer } from 'react-toastify'; 
 import { GET_ALL_USERS } from './graphql/Queries';
 
+import axios from 'axios';
+
 import 'react-toastify/dist/ReactToastify.css';
 import './styles/main.scss'
 
@@ -92,6 +94,8 @@ function App() {
       setConversationActiveMobile(false) 
     }
   }
+  
+  
 
   let ActualWidth = window.innerWidth
   
@@ -99,6 +103,56 @@ function App() {
   let ExactPath = location.pathname
 
   const LoggedUserArea = () => {
+
+    const [wholeMessages, setWholeMessages] = useState([]);
+
+    useEffect(() => {
+
+     
+      axios.get(`${process.env.REACT_APP_API_URL}conversations/messages/28`)
+        .then(function (response) {
+          setWholeMessages(response.data.content);
+      });
+
+      const ws = new WebSocket('ws://localhost:3004/');
+      
+      ws.onmessage = (event) => {
+        const newData = JSON.parse(event.data);
+        setWholeMessages(newData.content);
+      };
+       
+      return () => {
+        ws.close();
+      };
+    }, []);  
+
+    const [NewSentMessages, setNewSentMessages] = useState([])
+
+    console.log(wholeMessages)
+
+      
+
+
+        /*axios({
+          method: 'get',
+          url: `${process.env.REACT_APP_API_URL}conversations/messages/28`,
+        }).then(function (response) {
+            setWholeMessages(response.data.content)
+          })*/
+
+         
+
+        /*fetch(`${process.env.REACT_APP_API_URL}conversations/messages/28`, {
+          method: 'GET',
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+          }}).then(res => res.json()).then(data => setWholeMessages(data.content))*/
+
+
+     
+
+      //console.log(WholeMessages.map(item => item.status))
 
     const [SettedCollab, setSettedColab] = useState(JSON.parse(localStorage.getItem("SettedCollab")) ?? 'Collabolator')
     useEffect(() => { localStorage.setItem("SettedCollab", JSON.stringify(SettedCollab)) }, [SettedCollab])
@@ -125,15 +179,18 @@ function App() {
        <ApolloProvider client={client2}>
        <Chats 
        setSettedColab={setSettedColab}
-       SettedCollab={SettedCollab}
        Preloading={Preloading}
        ConversationActiveMobile={ConversationActiveMobile}
        setConversationActiveMobile={setConversationActiveMobile}
        SettingChatMobile={SettingChatMobile} 
        idConference={idConference}
        setIdConference={setIdConference}
+       NewSentMessages={NewSentMessages}
+       setNewSentMessages={setNewSentMessages}
        />
        <DiscusionBoard 
+       NewSentMessages={NewSentMessages}
+       setNewSentMessages={setNewSentMessages}
        SettedCollab={SettedCollab}
        idConference={idConference}
        ConversationList={ConversationList} 

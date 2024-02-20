@@ -16,7 +16,13 @@ import { CREATE_MESSAGE } from '../graphql/Mutation';
 
 /* providers */
 
-const Chats = ({ setIdConference, setSettedColab }) => {
+const Chats = ({ 
+  idConference,
+  setIdConference, 
+  setSettedColab,
+  NewSentMessages,
+  setNewSentMessages,
+}) => {
 
   const [createMessage, { error }] = useMutation(CREATE_MESSAGE)
   const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -65,14 +71,14 @@ const Chats = ({ setIdConference, setSettedColab }) => {
     } else {  }
   }, [User])
 
-  const [idUser, setIdUser] = useState(User ? User.id : 0)
+  const idUser = User ? User.id : 0
   const [AllChats, setAllChats] = useState([]) 
-  const [isYourMessage, setIsYourMessage] = useState(User ? `${User.first_name + ' ' + User.last_name}` : 'no user')
+  const isYourMessage = User ? `${User.first_name + ' ' + User.last_name}` : 'no user'
 
   const UserDotComponent = (item) => {
     const Collabolator = item.item   
  
-    const SelectUserAndCreateMess = () => {
+    /*const SelectUserAndCreateMess = () => {
       createMessage({
         variables: {
           idUser: 23, 
@@ -80,7 +86,7 @@ const Chats = ({ setIdConference, setSettedColab }) => {
           messages: [{}]
         }
       })
-    }
+    }*/
 
     const SelectAndCreate = () => {
     setSettedColab(Collabolator)
@@ -127,29 +133,45 @@ const Chats = ({ setIdConference, setSettedColab }) => {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       }}).then(res => res.json()).then(data => setAllChats(data.content))
-  }, [])
+
+      if(NewSentMessages != []) {
+        fetch(`${process.env.REACT_APP_API_URL}conversations/messages/${idUser}`, {
+          method: 'GET',
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+          }}).then(res => res.json()).then(data => setAllChats(data.content))
+      }
+
+  }, [NewSentMessages])
 
   const MessageThreadComponent = ({ item, idThread }) => {
 
     const CollabolatorsArray = JSON.parse(item.users)
+
     const LookingCollabolator = CollabolatorsArray.filter(item => item.id != idUser)
     const RightOneCollabolator = CollabolatorsArray.find(item => item.id)
-    let ItemIndex = AllChats.findIndex(item => item.id == idThread)
-    const [Users, setUsers] = useState(JSON.parse(AllChats[ItemIndex].users))
+
+    let ItemIndex = AllChats.findIndex(item => item.id == idThread) 
     const Messages = JSON.parse(AllChats[ItemIndex].messages)
-    useEffect(() => { setUsers(LookingCollabolator[ItemIndex])}, [])
-    const MultipleFunction = () => { setIdConference(idThread) 
-    setSettedColab(LookingCollabolator)} 
+
+    const MultipleFunction = () => { 
+    setIdConference(idThread) 
+    setSettedColab(LookingCollabolator)
+    setNewSentMessages([])
+    } 
 
     let SettedPic = NewUserList.find(item => item.id == RightOneCollabolator.id)     
+    let SettedPicC = LookingCollabolator[0] ? NewUserList.find(item => item.id == LookingCollabolator[0].id) : ''  
 
     return (
       <div onClick={MultipleFunction} className='ChatCloud'>
-          <div className='profileUserSmaller' style={{ backgroundImage: `url(${SettedPic == undefined ? '' : SettedPic.profile_pic})` }}></div>
+          {LookingCollabolator[0] == undefined ? <div className='profileUserSmaller' style={{ backgroundImage: `url(${SettedPic == undefined ? '' : SettedPic.profile_pic})` }}></div> : null}
+          {LookingCollabolator[0] ? <div className='profileUserSmaller' style={{ backgroundImage: `url(${SettedPicC == undefined ? '' : SettedPicC.profile_pic})` }}></div> : null}
             <div className='container--'>
-              <h3>{Users == undefined ? isYourMessage : Users.name + ' ' + Users.surname}</h3>
-            <span className='mess_ You'>{Messages[0] ? Messages.slice(-1)[0].content : ''}
-            </span>
+              {LookingCollabolator[0] ? <h3>{LookingCollabolator[0] ? LookingCollabolator[0].name + " " + LookingCollabolator[0].surname : ''}</h3> : null}
+              {RightOneCollabolator ? <h3>{LookingCollabolator[0] ? '' : RightOneCollabolator ? RightOneCollabolator.name + " " + RightOneCollabolator.surname : ''}</h3> : null}
+            {idThread == idConference ? <span className='mess_ You'>{NewSentMessages[0] ? NewSentMessages.slice(-1)[0].content : Messages.slice(-1)[0].content}</span> : <span className='mess_ You'>{Messages[0] ? Messages.slice(-1)[0].content : Messages.slice(-1)[0].content}</span>}
           </div>
         </div>
   )} 

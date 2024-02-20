@@ -27,8 +27,13 @@ import Button from '@mui/material/Button';
 
 import TextField from '@mui/material/TextField';
 
-const DiscusionBoard = ({ ConversationList, SettingChatMobile, idConference }) => {
-
+const DiscusionBoard = ({ 
+  ConversationList, 
+  SettingChatMobile, 
+  NewSentMessages,
+  setNewSentMessages,
+  idConference }) => {
+    
     let navigate = useNavigate()
     const [NewUserList, setNewUserList] = useState([])  
 
@@ -200,17 +205,14 @@ const DiscusionBoard = ({ ConversationList, SettingChatMobile, idConference }) =
     }
 
     function SetViewArea() { 
-
       setAreaExact(0)
       setAreaSetted(true)
-
       if(AreaSetted == true) {
         setAreaExact(3)
         setAreaSetted(false)
       } else {
         setAreaExact(0)
       }
-
     }
 
     function SetViewArea1() {  
@@ -267,12 +269,12 @@ const DiscusionBoard = ({ ConversationList, SettingChatMobile, idConference }) =
                 })
             }).then(res => res.json()).then(data => setSingleChatMessages(JSON.parse(data.content[0].messages)))
         } else { }
-    }, [idUser, idConference])
+    }, [idConference])
 
     let Query = SingleChatMessages.filter(item => item.user != isYourMessage)
 
     const SendAmessage = () => {
-    fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/create`, {
+      fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/create`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -285,12 +287,16 @@ const DiscusionBoard = ({ ConversationList, SettingChatMobile, idConference }) =
                 id: AllChatsSingle.id, 
                 IdU:idUser
             })
-    }).then(res => res.json())
+      })
     }
 
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
-            fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/create`, {
+           setNewSentMessages(oldArray => [...oldArray, 
+            { id: idUser,  attachment: Attachments, content: MessageToSend, user: isYourMessage
+            }]
+          )
+        fetch(`${process.env.REACT_APP_API_URL}conversations/single-message/create`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
@@ -303,14 +309,16 @@ const DiscusionBoard = ({ ConversationList, SettingChatMobile, idConference }) =
                 id: AllChatsSingle.id, 
                 IdU:idUser
                 })
-        }).then(res => res.json()).then(window.location.reload(false))
+        })
         }
     }
 
-    const Preloading = () => { window.location.reload(false) }
-
     const SenderFunction = () => { SendAmessage() 
-    Preloading()}
+    setNewSentMessages(oldArray => [...oldArray, 
+        { id: idUser,  attachment: Attachments, content: MessageToSend, user: isYourMessage
+        }]
+    )
+    }
 
     useEffect(() => { localStorage.setItem("CollabolatorQuery", JSON.stringify(Query))}, [Query])
 
@@ -325,8 +333,8 @@ const DiscusionBoard = ({ ConversationList, SettingChatMobile, idConference }) =
       let ActualItem = item.item
       let ItemIndex = SingleChatMessages.findIndex(item => item.id == ActualItem.id)
 
-      let lookingPhotoC = CollabPicId[0] == undefined ? 0 : NewUserList.find(item => item.id == CollabPicId[0].id)
-      let lookingPhotoY = NewUserList.find(item => item.id == YouPicId.id)
+      let lookingPhotoC = CollabPicId[0] === undefined ? 0 : NewUserList.find(item => item.id === CollabPicId[0].id)
+      let lookingPhotoY = NewUserList.find(item => item.id === YouPicId.id)
 
       let ActualAttachments = JSON.parse(ActualItem.attachment)  
       useEffect(() => { if(ActualAttachments) {setArrayAttachment(ActualAttachments)}}, [])
@@ -348,9 +356,27 @@ const DiscusionBoard = ({ ConversationList, SettingChatMobile, idConference }) =
             className='profileUserSmaller'></div> : null } 
         </div>
         )
-
     }
 
+    const SingleCloudMessNew = (item) => { 
+
+      let ActualItem = item.item
+      let lookingPhotoY = NewUserList.find(item => item.id === ActualItem.id)
+      let ActualAttachments = ActualItem.attachment
+
+        return (
+        <div className={"messageItself Collabolator justify-end"}>
+            <div className='container--'>
+                <h3 className={"right-text"}>{ActualItem.user}</h3>
+                <span className={"mess_ Collabolator right-text"}>{ActualItem.content}</span>
+                <div className={"PhotoArea You justify-start" }>
+                {ActualAttachments == [] ? '' :  ActualAttachments.map(item => <div className='placeholdPhoto' style={{ backgroundImage: `url(${item.url__})` }}></div>)}
+                 </div>
+            </div>
+            <div className='profileUserSmaller' style={{ backgroundImage: `url(${lookingPhotoY == undefined ? '' : lookingPhotoY.profile_pic})` }}></div>
+        </div>
+        )
+    }
      
   return (
 
@@ -373,6 +399,7 @@ const DiscusionBoard = ({ ConversationList, SettingChatMobile, idConference }) =
     <hr className='w-90'></hr>
     </div>
     {SingleChatMessages == [] ? null : SingleChatMessages.map(item => <SingleCloudMess item={item} />)}
+    {NewSentMessages == [] ? null : NewSentMessages.map(item => <SingleCloudMessNew  item={item} />)}
     <div className='write-section'>
 
         <div className='container-row w-100 align-items-center justify-end'>
