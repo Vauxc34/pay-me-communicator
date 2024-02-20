@@ -103,32 +103,9 @@ function App() {
   let ExactPath = location.pathname
 
   const LoggedUserArea = () => {
-
-    const [wholeMessages, setWholeMessages] = useState([]);
-
-    useEffect(() => {
-
-     
-      axios.get(`${process.env.REACT_APP_API_URL}conversations/messages/28`)
-        .then(function (response) {
-          setWholeMessages(response.data.content);
-      });
-
-      const ws = new WebSocket('ws://localhost:3004/');
-      
-      ws.onmessage = (event) => {
-        const newData = JSON.parse(event.data);
-        setWholeMessages(newData.content);
-      };
-       
-      return () => {
-        ws.close();
-      };
-    }, []);  
+ 
 
     const [NewSentMessages, setNewSentMessages] = useState([])
-
-    console.log(wholeMessages)
 
       
 
