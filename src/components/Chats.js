@@ -16,7 +16,7 @@ import { CREATE_MESSAGE } from '../graphql/Mutation';
 
 /* providers */
 
-const Chats = ({ 
+const Chats = ({
   idConference,
   setIdConference, 
   setSettedColab,
@@ -133,7 +133,6 @@ const Chats = ({
           'Accept': 'application/json',
           'Content-Type': 'application/json'
       }}).then(res => res.json()).then(data => setAllChats(data.content))
-
       if(NewSentMessages != []) {
         fetch(`${process.env.REACT_APP_API_URL}conversations/messages/${idUser}`, {
           method: 'GET',
@@ -141,8 +140,7 @@ const Chats = ({
               'Accept': 'application/json',
               'Content-Type': 'application/json'
           }}).then(res => res.json()).then(data => setAllChats(data.content))
-      }
-
+      }       
   }, [NewSentMessages])
 
   const MessageThreadComponent = ({ item, idThread }) => {

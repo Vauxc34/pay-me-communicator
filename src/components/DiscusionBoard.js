@@ -3,6 +3,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 import { useNavigate } from 'react-router-dom';
 import { storage, app } from '../config';
 import { toast } from 'react-toastify'; 
+import io from "socket.io-client";
 
 /* providers */
 
@@ -27,12 +28,16 @@ import Button from '@mui/material/Button';
 
 import TextField from '@mui/material/TextField';
 
+const socket = io.connect("http://localhost:3004");
+
 const DiscusionBoard = ({ 
+  ArrayOfEveryUsers, 
   ConversationList, 
   SettingChatMobile, 
   NewSentMessages,
   setNewSentMessages,
-  idConference }) => {
+  idConference 
+}) => {
     
     let navigate = useNavigate()
     const [NewUserList, setNewUserList] = useState([])  
@@ -91,7 +96,7 @@ const DiscusionBoard = ({
     const { User, ConversationSetter } = userContext
     const [AllChatsSingle, setAllChatsSingle] = useState([])
     const [SingleChatMessages, setSingleChatMessages] = useState([]) 
-    const [idUser, setIdUser] = useState(User ? User.id : 0)
+    const idUser =  User ? User.id : 0
     const isYourMessage =  User ? `${User.first_name + ' ' + User.last_name}` : 'no user'
     const [MessageToSend, setMessageToSend] = useState('')
     const [AreaExact, setAreaExact] = useState(-1)
@@ -257,6 +262,7 @@ const DiscusionBoard = ({
     }, [idUser, idConference])
 
     useEffect(() => {
+
         if(idConference != 0) {
             fetch(`${process.env.REACT_APP_API_URL}conversations/message/${idUser}`, {
                 method: 'POST',
@@ -268,9 +274,10 @@ const DiscusionBoard = ({
                     idConf: idConference
                 })
             }).then(res => res.json()).then(data => setSingleChatMessages(JSON.parse(data.content[0].messages)))
-        } else { }
-    }, [idConference])
+        }   
 
+    }, [idConference])
+    
     let Query = SingleChatMessages.filter(item => item.user != isYourMessage)
 
     const SendAmessage = () => {
@@ -312,12 +319,14 @@ const DiscusionBoard = ({
         })
         }
     }
+   
+    const d = new Date();
+    let time = d.getTime();
 
-    const SenderFunction = () => { SendAmessage() 
-    setNewSentMessages(oldArray => [...oldArray, 
-        { id: idUser,  attachment: Attachments, content: MessageToSend, user: isYourMessage
-        }]
-    )
+    const SenderFunction = () => { 
+    SendAmessage() 
+    sendMessageCollab()
+    setNewSentMessages(oldArray => [...oldArray,  { id: idUser,  attachment: Attachments, content: MessageToSend, user: isYourMessage, date: time, isUser: true }])
     }
 
     useEffect(() => { localStorage.setItem("CollabolatorQuery", JSON.stringify(Query))}, [Query])
@@ -360,28 +369,53 @@ const DiscusionBoard = ({
 
     const SingleCloudMessNew = (item) => { 
 
+      let ParsedDataIds = AllChatsSingle.idUsers ? JSON.parse(AllChatsSingle.idUsers) : []
+     
+      let YouPicId = ParsedDataIds.find(item => item.id == idUser)
+      let CollabPicId = ParsedDataIds.filter(item => item.id != idUser)
+
+      let lookingPhotoC = CollabPicId[0] === undefined ? 0 : NewUserList.find(item => item.id === CollabPicId[0].id)
+      let lookingPhotoY = NewUserList.find(item => item.id === YouPicId.id)
+
       let ActualItem = item.item
-      let lookingPhotoY = NewUserList.find(item => item.id === ActualItem.id)
       let ActualAttachments = ActualItem.attachment
 
         return (
-        <div className={"messageItself Collabolator justify-end"}>
+        <div className={ActualItem.user == isYourMessage ? "messageItself Collabolator justify-end" : "messageItself You justify-start" }>
+
+            {ActualItem.user == isYourMessage && lookingPhotoC != undefined ? null : <div className='profileUserSmaller' 
+            style={{ backgroundImage: `url(${lookingPhotoC  == undefined ? '' : lookingPhotoC.profile_pic})` }}
+            ></div>} 
+
             <div className='container--'>
-                <h3 className={"right-text"}>{ActualItem.user}</h3>
-                <span className={"mess_ Collabolator right-text"}>{ActualItem.content}</span>
-                <div className={"PhotoArea You justify-start" }>
+                <h3 className={ActualItem.user == isYourMessage ? "right-text" : "left-text"}>{ActualItem.user}</h3>
+                <span className={ActualItem.user == isYourMessage ? "mess_ Collabolator right-text" : "mess_ You left-text"}>{ActualItem.content}</span>
+                <div className={ActualItem.user == isYourMessage ? "PhotoArea Collabolator justify-end" : "PhotoArea You justify-start" }>
                 {ActualAttachments == [] ? '' :  ActualAttachments.map(item => <div className='placeholdPhoto' style={{ backgroundImage: `url(${item.url__})` }}></div>)}
                  </div>
             </div>
-            <div className='profileUserSmaller' style={{ backgroundImage: `url(${lookingPhotoY == undefined ? '' : lookingPhotoY.profile_pic})` }}></div>
+            
+            {ActualItem.user == isYourMessage && lookingPhotoY != undefined ? <div
+            style={{ backgroundImage: `url(${lookingPhotoY == undefined ? '' : lookingPhotoY.profile_pic})` }}
+            className='profileUserSmaller'></div> : null } 
+
         </div>
         )
     }
+
+    const sendMessageCollab = () => { 
+    socket.emit("send_message", { message: { id: idUser,  attachment: Attachments, content: MessageToSend, user: isYourMessage, date: time, isUser: false }})
+    };
+
+    useEffect(() => {
+    socket.on("receive_message", (data) => { setNewSentMessages(Mess => [...Mess, data.message])});
+    }, [socket]);
+
+    const FilteredSentedNewArr  = NewSentMessages.filter((obj, index) => NewSentMessages.findIndex((item) => item.content === obj.content ) === index);
      
   return (
 
     <div className='MainPartDiscusion' ref={ConversationList} style={{ zIndex: -1 }}>
-
     <div className='up-section'>
         <div className={`container-row align-items-center w-90  space-around-between`}>
 
@@ -399,7 +433,7 @@ const DiscusionBoard = ({
     <hr className='w-90'></hr>
     </div>
     {SingleChatMessages == [] ? null : SingleChatMessages.map(item => <SingleCloudMess item={item} />)}
-    {NewSentMessages == [] ? null : NewSentMessages.map(item => <SingleCloudMessNew  item={item} />)}
+    {NewSentMessages == [] ? null : FilteredSentedNewArr.map(item => <SingleCloudMessNew  item={item} />)}
     <div className='write-section'>
 
         <div className='container-row w-100 align-items-center justify-end'>

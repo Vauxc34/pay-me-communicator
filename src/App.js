@@ -94,8 +94,6 @@ function App() {
       setConversationActiveMobile(false) 
     }
   }
-  
-  
 
   let ActualWidth = window.innerWidth
   
@@ -103,33 +101,13 @@ function App() {
   let ExactPath = location.pathname
 
   const LoggedUserArea = () => {
- 
 
     const [NewSentMessages, setNewSentMessages] = useState([])
+    
 
-      
+    
 
-
-        /*axios({
-          method: 'get',
-          url: `${process.env.REACT_APP_API_URL}conversations/messages/28`,
-        }).then(function (response) {
-            setWholeMessages(response.data.content)
-          })*/
-
-         
-
-        /*fetch(`${process.env.REACT_APP_API_URL}conversations/messages/28`, {
-          method: 'GET',
-          headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-          }}).then(res => res.json()).then(data => setWholeMessages(data.content))*/
-
-
-     
-
-      //console.log(WholeMessages.map(item => item.status))
+    const [ArrayOfEveryUsers, setArrayOfEveryUsers] = useState([])
 
     const [SettedCollab, setSettedColab] = useState(JSON.parse(localStorage.getItem("SettedCollab")) ?? 'Collabolator')
     useEffect(() => { localStorage.setItem("SettedCollab", JSON.stringify(SettedCollab)) }, [SettedCollab])
@@ -166,6 +144,8 @@ function App() {
        setNewSentMessages={setNewSentMessages}
        />
        <DiscusionBoard 
+       ArrayOfEveryUsers={ArrayOfEveryUsers}
+       setArrayOfEveryUsers={setArrayOfEveryUsers}
        NewSentMessages={NewSentMessages}
        setNewSentMessages={setNewSentMessages}
        SettedCollab={SettedCollab}
